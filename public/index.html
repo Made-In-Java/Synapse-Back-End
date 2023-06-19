@@ -1,0 +1,46 @@
+<html>
+
+<head>
+  <title>SynapseSoftware</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    label {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Synapse Software</h1>
+  <p>Welcome to Synapse Software</p>
+</body>
+<form action="/clients" method="post">
+  <fieldset>
+    <legend>Create</legend>
+    <label>Name:
+      <input type="text" name="name" id="name">
+    </label>
+    <label>Type:
+      <input type="text" name="type" id="name">
+    </label>
+    <label>Document:
+      <input type="text" name="document" id="name">
+    </label>
+    <label>Email:
+      <input type="email" name="email" id="name">
+    </label>
+    <input type="submit" value="Enviar">
+  </fieldset>
+</form>
+<form action="#" method="get">
+  <fieldset>
+    <legend>Delete</legend>
+    <label>
+      ID: <input type="text" name="_id" id="id">
+    </label>
+    <button onclick="">Deletar</button>
+    <p id="message"></p>
+  </fieldset>
+</form>
+
+</html>
