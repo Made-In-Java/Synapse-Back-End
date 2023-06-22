@@ -21,6 +21,6 @@ let ClientSchema = new Schema({
     historical: Array,
 });
 
-let Client = mongoose.model('client', ClientSchema);
+let Client = mongoose.model('Client', ClientSchema, 'Client');
 
 module.exports = Client;
