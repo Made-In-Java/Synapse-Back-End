@@ -24,10 +24,11 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-/* GET add a new client listing. */
+/* POST a new client */
 router.post('/', async (req, res, next) => {
   try {
     let newClient = new db.Client(req.body);
+    newClient.createdAt = new Date();
     newClient.save();
     res.json({ newClient });
   }
@@ -36,11 +37,13 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-/* GET update a client listing. */
+/* PUT update a client listing. */
 router.put('/:id', async (req, res, next) => {
   try {
     let clientId = req.params.id;
-    let updatedClient = db.Client.findByIdAndUpdate(clientId, req.body);
+    let newData = req.body;
+    newData.updatedAt = new Date();
+    let updatedClient = await db.Client.findByIdAndUpdate(clientId, newData);
     res.json(updatedClient);
   }
   catch (err) {
@@ -48,11 +51,11 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-/* GET delete a client listing. */
+/* DELETE delete a client listing. */
 router.delete('/:id', async (req, res, next) => {
   try {
     let clientId = req.params.id;
-    let removedClient = db.Client.findOneAndRemove({ _id: clientId }).populate('client').exec();
+    let removedClient = await db.Client.findOneAndRemove({ _id: clientId }).populate('Client').exec();
     res.json(removedClient);
   }
   catch (err) {
