@@ -5,6 +5,8 @@ mongoose.connect(dbURL);
 
 let Client = require('./client');
 let Budget = require('./budget');
+let User = require('./user');
 
 module.exports.Client = Client;
 module.exports.Budget = Budget;
+module.exports.User = User;
