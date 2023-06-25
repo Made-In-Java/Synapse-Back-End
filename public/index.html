@@ -26,7 +26,7 @@
   <main class="container">
     <form action="/clients" method="post">
       <fieldset>
-        <legend>Create</legend>
+        <legend>Create new Client</legend>
         <label>Name:
           <input type="text" name="name" id="name" placeholder="Name">
         </label>
@@ -47,12 +47,40 @@
     </form>
     <form action="#" method="get">
       <fieldset>
-        <legend>Delete</legend>
+        <legend>Delete Client</legend>
         <label>
           ID: <input type="text" name="_id" id="id">
         </label>
         <button onclick="">Deletar</button>
         <p id="message"></p>
+      </fieldset>
+    </form>
+    <form action="/auth/login" method="post">
+      <fieldset>
+        <legend>Login User</legend>
+        <label>
+          E-mail: <input type="text" name="email" id="login-email" placeholder="exemple@exemple.com">
+        </label>
+        <label>
+          Password: <input type="password" name="password" id="login-password" placeholder="****">
+        </label>
+        <input type="submit" value="Entrar">
+      </fieldset>
+    </form>
+
+    <form action="/auth/sign-in" method="post">
+      <fieldset>
+        <legend>Create User</legend>
+        <label>
+          E-mail: <input type="text" name="email" id="signin-email" placeholder="exemple@exemple.com">
+        </label>
+        <label>
+          Password: <input type="password" name="password" id="signin-password" placeholder="****">
+        </label>
+        <label>
+          Document: <input type="text" name="document" id="signin-document" placeholder="000.000.000-00">
+        </label>
+        <input type="submit" value="Entrar">
       </fieldset>
     </form>
   </main>
