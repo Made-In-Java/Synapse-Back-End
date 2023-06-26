@@ -4,6 +4,9 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 const db = require('../models');
 
+const jwt = require('jsonwebtoken');
+
+
 /* Register new user */
 router.post('/sign-in', async (req, res, next) => {
   try {
@@ -15,7 +18,6 @@ router.post('/sign-in', async (req, res, next) => {
   } catch (err) {
     res.status(500).end();
   }
-
 
   let user = new db.User(req.body);
 
@@ -72,55 +74,9 @@ router.post('/login', async (req, res, next) => {
     return;
   }
 
-  let date = new Date();
-  date.setDate(date.getDate() + 7);
-  user.loginToken.expDate = date;
-
-  var newUUID = crypto.randomUUID();
-  user.loginToken.token = newUUID;
-
-  try {
-    var authUser = await db.User.findByIdAndUpdate(user.id, { 'loginToken': user.loginToken });
-  } catch (err) {
-    res.status(500).end();
-  }
-
-  try {
-    res.cookie('auth', newUUID/*, {
-      secure: true,
-      httpOnly: true,
-      expires: date,
-      credentials: 'same-origin',
-      domain: 'localhost:3000',
-      sameSite: 'strict',
-    }*/);
-
-  } catch (err) {
-    res.status(401).end();
-  }
-
-  user.password = '';
-  user.loginToken = '';
-  res.json({ user });
-});
-
-/* Sign-off an user */
-router.get('/logout', async function (req, res, next) {
-  let authCookie = req.cookies['auth'];
-  try {
-    let user = await db.User.findOne({ 'token': authCookie });
-    if (user) {
-      user.loginToken.token = '';
-      user.loginToken.expDate = null;
-      let authUser = await db.User.findByIdAndUpdate(user.id, { 'loginToken': user.loginToken });
-      console.log(authUser);
-    }
-    res.clearCookie('auth');
-    res.status(200).end();
-  } catch (err) {
-    res.status(500).end();
-  }
-
+  const payload = { user };
+  const token = jwt.sign(payload, process.env.TOKEN_KEY);
+  res.json({ token });
 });
 
 module.exports = router;
