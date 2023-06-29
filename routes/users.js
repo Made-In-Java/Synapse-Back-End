@@ -1,8 +1,7 @@
 const express = require('express');
-const crypto = require('crypto');
+const uuid = require('uuid');
 const router = express.Router();
 const db = require('../models');
-const auth = require('../middleware/auth');
 
 /* Get all users */
 router.get('/', async (req, res, next) => {
@@ -25,12 +24,42 @@ router.get('/:id', async (req, res, next) => {
 });
 
 /* Add a new User */
+/* This function should not be allowed to add confidential data to the database */
 router.post('/', async (req, res, next) => {
+  let { name, email } = req.body || null;
+
+  if (!email || !document) {
+    res.status(400);
+  }
+
   try {
-    let newClient = new db.Client(req.body);
-    newClient.createdAt = new Date();
-    newClient.save();
-    res.json({ newClient });
+    let newUser = new db.User();
+    newUser.name = name;
+    newUser.email = email;
+    newUser.createdAt = new Date();
+    newUser.signInToken = uuid.v4();
+    newUser.signInToken.expDate = new Date().setDate(new Date().getDate() + 1);
+    newUser.save();
+    res.status(200).end();
+  }
+  catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+/* Refresh the token and sign-in exp data from an user */
+router.patch('/refresh/:id', async (req, res, next) => {
+  try {
+    let userId = req.params.id;
+    let signInToken = uuid.v4();
+    let expDate = new Date().setDate(new Date().getDate() + 1);
+
+    let userToUpdate = await db.User.findById(userId);
+    userToUpdate.signInToken.expDate = expDate;
+    userToUpdate.signInToken = signInToken;
+    userToUpdate.save();
+
+    res.json(userToUpdate);
   }
   catch (err) {
     res.status(500).json(err);
@@ -55,8 +84,8 @@ router.put('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     let userId = req.params.id;
-    await db.Client.findOneAndRemove({ _id: userId }).populate('Client').exec();
-    res.status(200).json(removedClient);
+    await db.User.findOneAndRemove({ _id: userId }).populate('User').exec();
+    res.status(200).end();
   }
   catch (err) {
     res.status(500).json(err);
