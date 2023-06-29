@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
 
+/* Controllers */
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var budgetsRouter = require('./routes/budgets');
@@ -14,9 +15,11 @@ var projectsRouter = require('./routes/projects');
 var servicesRouter = require('./routes/services');
 var usersRouter = require('./routes/users');
 
+/* Middlewares */
 const auth = require('./middleware/auth');
 
 var app = express();
+
 
 var corsOptions = {
     origin: 'http://localhost:3000',
@@ -29,6 +32,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+/* Routes */
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/budgets', auth.isAuthorized, budgetsRouter);

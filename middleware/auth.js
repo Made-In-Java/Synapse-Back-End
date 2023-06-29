@@ -1,9 +1,8 @@
-const crypto = require('crypto');
 const db = require('../models');
 
 const jwt = require('jsonwebtoken');
 const { json } = require('express');
-
+/* Authorizes an user if request variable has a valid jwt */
 module.exports.isAuthorized = async (req, res, next) => {
 
     var token = req.body.token || req.cookies?.token || null;
