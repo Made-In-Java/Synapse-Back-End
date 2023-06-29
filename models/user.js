@@ -18,11 +18,12 @@ let UserSchema = new Schema({
         group: String,
         label: String
     }],
-    loginToken: {
+    signInToken: {
         token: String,
         expDate: Date
     },
     createdAt: Date,
+    signInDate: Date,
     updatedAt: Date,
     historical: Array,
 });
