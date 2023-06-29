@@ -1,5 +1,4 @@
 const express = require('express');
-const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const db = require('../models');
@@ -7,37 +6,37 @@ const db = require('../models');
 const jwt = require('jsonwebtoken');
 
 
-/* Register new user */
-router.post('/sign-in', async (req, res, next) => {
-  try {
-    let userWithSameData = await db.User.findOne({ $or: [{ 'email': req.body.email }, { 'document': req.body.document }] });
+/* Registers a new user if it has an email, document and a sign-in token set on the database */
+router.post('/sign-in/:id', async (req, res, next) => {
+  let { name, document, email, password } = req.body || null;
 
-    if (userWithSameData) {
+  if (!name || !document || !email || !password) {
+    res.status(400).end();
+  }
+
+  try {
+    var user = await db.User.findOne({ 'email': email, 'document': document, 'signInToken.token': req.params.id });
+
+    if (!user || user?.signInToken.expDate < Date.now()) {
       res.status(400).end();
     }
+
   } catch (err) {
     res.status(500).end();
   }
 
-  let user = new db.User(req.body);
-
-  if (!user.password || !user.document || !user.email) {
-    res.status(400).end();
-  }
-  user.emailDiaplay = user.email.substring(0, 3);
-  // user.email = await bcrypt.hash(user.email, 11);
 
   try {
-    user.password = await bcrypt.hash(user.password, 11);
+    user.password = await bcrypt.hash(password, 11);
 
-    user.documentDisplay = user.document.substring(0, 3);
-    user.document = await bcrypt.hash(user.document, 11);
+    user.document = await bcrypt.hash(document, 11);
+    user.documentDisplay = document.substring(0, 3);
 
-    user.createdAt = new Date();
+    user.signInDate = new Date();
+
     user.save();
 
-    delete user.password;
-    res.json(user);
+    res.status(201).end();
   } catch (err) {
     res.status(500).json(err);
   }
