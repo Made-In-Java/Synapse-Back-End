@@ -1,13 +1,12 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
+const express = require("express");
+const bcrypt = require("bcrypt");
 const router = express.Router();
-const db = require('../models');
+const db = require("../models");
 
-const jwt = require('jsonwebtoken');
-
+const jwt = require("jsonwebtoken");
 
 /* Registers a new user if it has an email, document and a sign-in token set on the database */
-router.post('/sign-in/:id', async (req, res, next) => {
+router.post("/sign-in/:id", async (req, res, next) => {
   let { name, document, email, password } = req.body || null;
 
   if (!name || !document || !email || !password) {
@@ -15,16 +14,18 @@ router.post('/sign-in/:id', async (req, res, next) => {
   }
 
   try {
-    var user = await db.User.findOne({ 'email': email, 'document': document, 'signInToken.token': req.params.id });
+    var user = await db.User.findOne({
+      email: email,
+      document: document,
+      "signInToken.token": req.params.id,
+    });
 
     if (!user || user?.signInToken.expDate < Date.now()) {
       res.status(400).end();
     }
-
   } catch (err) {
     res.status(500).end();
   }
-
 
   try {
     user.password = await bcrypt.hash(password, 11);
@@ -43,7 +44,7 @@ router.post('/sign-in/:id', async (req, res, next) => {
 });
 
 /* Authenticate an user */
-router.post('/login', async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!(email && password)) {
@@ -52,7 +53,7 @@ router.post('/login', async (req, res, next) => {
   }
 
   try {
-    var user = await db.User.findOne({ 'email': email });
+    var user = await db.User.findOne({ email: email });
   } catch (err) {
     res.status(500).end();
     return;
@@ -64,7 +65,7 @@ router.post('/login', async (req, res, next) => {
   }
 
   try {
-    if (! await bcrypt.compare(password, user.password)) {
+    if (!(await bcrypt.compare(password, user.password))) {
       res.status(401).send("Wrong password");
       return;
     }
@@ -74,8 +75,22 @@ router.post('/login', async (req, res, next) => {
   }
 
   const payload = { user };
+
   const token = jwt.sign(payload, process.env.TOKEN_KEY);
-  res.json({ token });
+
+  res.json({ name: user.name, email, token });
+});
+
+router.post("/session", async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) res.status(404).send("Token not found.");
+
+  const {
+    user: { name, email },
+  } = jwt.verify(token, process.env.TOKEN_KEY);
+
+  res.json({ name, email });
 });
 
 module.exports = router;
