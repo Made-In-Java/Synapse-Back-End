@@ -4,13 +4,20 @@ const jwt = require("jsonwebtoken");
 const { json } = require("express");
 /* Authorizes an user if request variable has a valid jwt */
 module.exports.isAuthorized = async (req, res, next) => {
-  const [, token] = req.headers.authentication.split(" ");
+  const authHeader = req.headers.authorization;
 
   const err = new Error("Not authorized");
   err.status = 401;
 
+  if (!authHeader) {
+    err.message = "Ausência de token";
+    return next(err);
+  }
+
+  const [, token] = authHeader.split(" ");
+
   if (!token || token === "") {
-    err.message = "Bad cookie";
+    err.message = "Ausência de token";
     return next(err);
   }
 
@@ -18,13 +25,13 @@ module.exports.isAuthorized = async (req, res, next) => {
     const payload = jwt.verify(token, process.env.TOKEN_KEY);
 
     const user = await db.User.findById(payload.user._id);
+
+    if (!user) {
+      return next(err);
+    }
   } catch (err) {
     err.message = "Bad connection";
 
-    return next(err);
-  }
-
-  if (!user) {
     return next(err);
   }
 
