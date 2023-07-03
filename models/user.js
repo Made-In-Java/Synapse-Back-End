@@ -8,7 +8,7 @@ let UserSchema = new Schema({
     password: String,
     document: String,
     documentDisplay: String,
-    funcionalities: [{
+    functionalities: [{
         id: ObjectId,
         name: String,
         permissions: {
