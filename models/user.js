@@ -4,6 +4,7 @@ let mongoose = require('mongoose'),
 let UserSchema = new Schema({
     name: String,
     email: String,
+    obs: String,
     emailDisplay: String,
     password: String,
     document: String,

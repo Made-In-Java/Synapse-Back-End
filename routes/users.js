@@ -19,10 +19,11 @@ router.get("/", async (req, res, next) => {
 /* Get single user */
 router.get("/:id", async (req, res, next) => {
   try {
-    let users = await db.User.findById(req.params.id).select(
+    let user = await db.User.findById(req.params.id).select(
       "-password -loginToken -document"
     );
-    res.json({ users });
+
+    res.json(user);
   } catch (err) {
     res.status(500).end();
   }
@@ -53,7 +54,21 @@ router.post("/", async (req, res, next) => {
       _id: { $in: functionalities },
     });
 
-    console.log(databaseFunctionalities);
+    const {
+      user: { _id: userId, name: userName },
+    } = req;
+
+    newUser.historical = [
+      {
+        type: "ENTITY_CREATION",
+        description: "O usuário foi cadastrado no sistema.",
+        date: new Date().toISOString(),
+        user: {
+          id: userId,
+          name: userName,
+        },
+      },
+    ];
 
     newUser.functionalities = databaseFunctionalities;
 
@@ -88,10 +103,37 @@ router.patch("/refresh/:id", async (req, res, next) => {
 /* Update data from user */
 router.put("/:id", async (req, res, next) => {
   try {
-    let userId = req.params.id;
-    let newData = req.body;
-    newData.updatedAt = new Date();
-    let updatedUser = await db.User.findByIdAndUpdate(userId, newData);
+    let id = req.params.id;
+    let payload = req.body;
+
+    payload.updatedAt = new Date().toISOString();
+
+    const databaseFunctionalities = await db.Functionality.find({
+      _id: { $in: payload.functionalities },
+    });
+
+    const {
+      user: { _id: userId, name: userName },
+    } = req;
+
+    const user = await db.User.findById(id);
+
+    payload.historical = [
+      ...user.historical,
+      {
+        type: "BASIC_INFO",
+        description: "O usuário teve seus dados alterados.",
+        date: new Date().toISOString(),
+        user: {
+          id: userId,
+          name: userName,
+        },
+      },
+    ];
+
+    payload.functionalities = databaseFunctionalities;
+
+    let updatedUser = await db.User.findByIdAndUpdate(id, payload);
     res.json(updatedUser);
   } catch (err) {
     res.status(500).json(err);

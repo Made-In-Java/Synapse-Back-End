@@ -14,7 +14,7 @@ module.exports.isAuthorized = async (req, res, next) => {
     return next(err);
   }
 
-  const [, token] = authHeader.split(" ");
+  const [, token] = authHeader.split(" "); // [, "<token>"]
 
   if (!token || token === "") {
     err.message = "Ausência de token";
@@ -29,6 +29,8 @@ module.exports.isAuthorized = async (req, res, next) => {
     if (!user) {
       return next(err);
     }
+
+    req.user = user;
   } catch (err) {
     err.message = "Bad connection";
 

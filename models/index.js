@@ -7,7 +7,7 @@ let Budget = require('./budget');
 let Client = require('./client');
 let Equipment = require('./equipment');
 let Functionality = require('./functionality');
-let Project = require('./functionality');
+let Project = require('./project');
 let Service = require('./service');
 let User = require('./user');
 
