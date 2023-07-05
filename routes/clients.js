@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     let client = await db.Client.findOne({ _id: req.params.id });
-    res.json({ client });
+    res.json(client);
   }
   catch (err) {
     res.status(500).json(err);
